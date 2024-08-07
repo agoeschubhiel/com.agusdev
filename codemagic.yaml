@@ -2,10 +2,9 @@ workflows:
   build:
     name: Build Android Native App
     environment:
-      # Specify the Android SDK version and other necessary environment settings
       android:
-        api_level: 33
-        build_tools_version: "33.0.0"
+        api_level: 34
+        build_tools_version: "34"
 
     scripts:
       - name: Checkout code
