@@ -6,8 +6,6 @@ workflows:
     environment:
       vars:
         PACKAGE_NAME: "com.agusdev"
-        # Adding default values to avoid issues if variables are not set
-        GOOGLE_PLAY_TRACK: "internal"
         BUILD_NUMBER: "1"
     scripts:
       - name: Set Android SDK location
