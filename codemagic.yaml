@@ -1,45 +1,42 @@
-version: 2.0
-
 workflows:
-  build:
-    name: Build Android Native App
-
+  native-android:
+    name: Native Android
+    max_build_duration: 120
+    instance_type: mac_mini_m1
     environment:
-      # Use a predefined environment image for Android
-      image: codemagic/android:latest
-
+      android_signing:
+        - keystore_reference
+      groups:
+        - google_play
+      vars:
+        PACKAGE_NAME: "io.codemagic.androidquicksample"
+        # Adding default values to avoid issues if variables are not set
+        GOOGLE_PLAY_TRACK: "internal"
+        BUILD_NUMBER: "1"
     scripts:
-      - name: Checkout code
+      - name: Set Android SDK location
         script: |
-          git clone https://github.com/com.agusdev/your-project.git
-          cd your-project
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/local.properties"
 
-      - name: Install dependencies
+      - name: Build Android release
         script: |
-          # Install dependencies if needed
-          ./gradlew dependencies
-
-      - name: Build APK
-        script: |
-          # Build the APK with the release variant
-          ./gradlew assembleRelease
-
-      - name: Run Tests
-        script: |
-          # Run unit tests and instrumentation tests
-          ./gradlew test
-          ./gradlew connectedAndroidTest
+          LATEST_GOOGLE_PLAY_BUILD_NUMBER=$(google-play get-latest-build-number --package-name "$PACKAGE_NAME" || echo "0")
+          UPDATED_BUILD_NUMBER=$(($LATEST_GOOGLE_PLAY_BUILD_NUMBER + 1))
+          ./gradlew bundleRelease -PversionCode=$UPDATED_BUILD_NUMBER -PversionName=1.0.$UPDATED_BUILD_NUMBER
 
     artifacts:
-      - build/outputs/apk/release/app-release.apk
-      - build/outputs/apk/debug/app-debug.apk
+      - app/build/outputs/**/*.aab
 
-    triggers:
-      # Define triggers for workflow execution
-      push:
-        branches:
-          only:
-            - main
+    publishing:
+      email:
+        recipients:
+          - user_1@example.com
+          - user_2@example.com
+        notify:
+          success: true
+          failure: false
 
-    # Optionally, you can add deployment steps if required
-    # For example, deployment to Firebase or other services
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: $GOOGLE_PLAY_TRACK
+        submit_as_draft: true
