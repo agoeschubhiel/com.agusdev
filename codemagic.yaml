@@ -1,31 +1,32 @@
+version: 2.0
+
 workflows:
   build:
     name: Build Android Native App
+
     environment:
-      android:
-        api_level: 34
-        build_tools_version: "34"
+      # Use a predefined environment image for Android
+      image: codemagic/android:latest
 
     scripts:
       - name: Checkout code
         script: |
-          git clone https://github.com/your-repo/your-project.git
+          git clone https://github.com/com.agusdev/your-project.git
           cd your-project
 
       - name: Install dependencies
         script: |
-          # If you are using Gradle, it will automatically handle dependencies
-          # Here, you might want to add steps to configure or update dependencies
+          # Install dependencies if needed
           ./gradlew dependencies
 
       - name: Build APK
         script: |
-          # This will compile the APK with the `release` variant
+          # Build the APK with the release variant
           ./gradlew assembleRelease
 
       - name: Run Tests
         script: |
-          # Run unit tests or instrumentation tests
+          # Run unit tests and instrumentation tests
           ./gradlew test
           ./gradlew connectedAndroidTest
 
@@ -34,11 +35,11 @@ workflows:
       - build/outputs/apk/debug/app-debug.apk
 
     triggers:
-      # Configure triggers to start this workflow on push to the main branch
+      # Define triggers for workflow execution
       push:
         branches:
           only:
             - main
 
-    # Optionally, you can add deployment steps here if you have a deployment strategy
-    # For example, uploading to Google Play or distributing via Firebase App Distribution
+    # Optionally, you can add deployment steps if required
+    # For example, deployment to Firebase or other services
