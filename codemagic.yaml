@@ -1,0 +1,47 @@
+version: 2.0
+
+workflows:
+  build:
+    name: Build Android Native App
+    environment:
+      # Specify the Android SDK version and other necessary environment settings
+      android:
+        api_level: 33
+        build_tools_version: "33.0.0"
+
+    scripts:
+      - name: Checkout code
+        script: |
+          git clone https://github.com/your-repo/your-project.git
+          cd your-project
+
+      - name: Install dependencies
+        script: |
+          # If you are using Gradle, it will automatically handle dependencies
+          # Here, you might want to add steps to configure or update dependencies
+          ./gradlew dependencies
+
+      - name: Build APK
+        script: |
+          # This will compile the APK with the `release` variant
+          ./gradlew assembleRelease
+
+      - name: Run Tests
+        script: |
+          # Run unit tests or instrumentation tests
+          ./gradlew test
+          ./gradlew connectedAndroidTest
+
+    artifacts:
+      - build/outputs/apk/release/app-release.apk
+      - build/outputs/apk/debug/app-debug.apk
+
+    triggers:
+      # Configure triggers to start this workflow on push to the main branch
+      push:
+        branches:
+          only:
+            - main
+
+    # Optionally, you can add deployment steps here if you have a deployment strategy
+    # For example, uploading to Google Play or distributing via Firebase App Distribution
